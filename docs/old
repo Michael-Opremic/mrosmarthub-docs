@@ -1,0 +1,1066 @@
+
+----
+== Stock listings ==
+=== Get available stock listings ===
+The purpose of this service is to return all currently uploaded parts that are available for purchase for the requesting company.
+==== Data definition ====
+|**Field Name**|**Field Type**|**Description**
+|connectorStockId|character(36)|Internal platform stock ID
+|materialId|character|Internal platform material ID. Currently part number stripped of any special characters
+|pn|character|Part number
+|description|character|Part description
+|condition|condition|See chapter "Valid values" section "Condition"
+|priceUsd|numeric|Price in USD
+|sn|character|Serial number
+|mfr|character|Manufacturer
+|mroApprovalNo|character|MRO approval number
+|mroName|character|MRO name
+|leadTime|integer|Shipping time in days
+|tagDate|date|Tag date
+|lastOperator|character|Last Operator
+|lastMsn|character|Last MSN
+|incidentRelated|boolean|Was the corresponding aircraft incident related?
+|quantity|integer|Quantity of units
+|unit|unit|See chapter "Valid values" section "Unit of Measure"
+|dateOfManufacture|date|Date of manufacture of current part
+|timeRemaining|integer|Remaining life time in days for the current part
+|cyclesRemaining|integer|Remaining cycles for the current part
+|shelfLife|date|Shelf life expiration date
+|location|character|IATA 3-letter-code of closest airport to actual material location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|company|character|Uploading company
+|timeStampEntry|dateTime|Time of database entry
+==== Web service access ====
+* **Request method: **GET
+* **URL:**// //https:~/~/services.surplusdataconnection.com/getAvailableStock
+* **Testing URL:**// //https:~/~/services.test.surplusdataconnection.com/getAvailableStock
+* **URL query parameters:** //user, key//
+** //user//: The login name of the user's account, e.g., zzz001
+** //key//: The customer's web service security key associated with the user's account. This key can be changed in the parameters section of customer's settings in SC.
+* **Response: **A JSON string containing the response status, response message and data with all parts that are visible to the requesting company, excluding own uploaded stock. The return fields are given in the table below. Empty fields will be returned as //null.//
+* **Example usage:** https:~/~/services.test.surplusdataconnection.com/getAvailableStock?user=zzz001&key=keyzzz001
+(% class="box" %)
+(((
+**Example for result body**
+{"status":["success"],"message":["Available stock returned."],"data":{"connectorStockId":["6f95cd10-c8bb-4381-8b68-a255571aa2f0"],materialId":["PN1234"],"pn":["PN‑1234"],"description":["Fuel pump"],"condition":["OH"],"priceUsd":[1000],"sn":["SN001"],"mfr":["MFR001"],"mroApprovalNo":[null],"mroName":["OPREMIC SOLUTIONS"],"leadTime":[1],"tagDate":["2018‑01‑01"],"lastOperator":["TEST AIR"],"lastMsn":["MSN001"],"incidentRelated":[false],"quantity":[1],"unit":["each"],"dateOfManufacture":["2017‑01‑01"],"timeRemaining":[100],"cyclesRemaining":[2000],"shelfLife":["2020‑01‑01"],"location":["Germany"],"company":["OPREMIC SOLUTIONS"],"timeStampEntry":["2018‑01‑01 14:56:23"]}}
+)))
+----
+=== Push services for available stock changes ===
+To reduce the number of empty responses on scheduled requests for changes in inventory, the platform can proactively send data to a specified endpoint in the customer's IT system that tracks changes in visible stock since the last data transmission.
+The endpoint on the customer side has to be set up by the customer. Several requirements have to be fulfilled by this endpoint:
+* The connection should be SSL encrypted.
+* The endpoint should accept HTTP POST requests.
+* The endpoint should be secured with credentials. These credentials are provided as header fields.
+* The endpoint should accept data in format and scope as defined in the following. The data is provided in the body of the request.
+It is highly recommended that the customer stores the internalStockId that is provided by the platform to identify the correct stock entries in case multiple lines for the same part number exist.
+==== Data definition ====
+|**Field Name**|**Field Type**|**Description**
+|connectorStockId|character(36)|Internal platform stock ID
+|materialId|character|Internal platform material ID, i.e., part number stripped of any special characters
+|pn|character|Part number
+|description|character|Part description
+|condition|condition|See chapter "Valid values" section "Condition"
+|priceUsd|numeric|Price in USD
+|sn|character|Serial number
+|mfr|character|Manufacturer
+|mroApprovalNo|character|MRO approval number
+|mroName|character|MRO name
+|leadTime|integer|Shipping time in days
+|tagDate|date|Tag date
+|lastOperator|character|Last Operator
+|lastMsn|character|Last MSN
+|incidentRelated|boolean|Was the corresponding aircraft incident related?
+|quantity|integer|Quantity of parts (used if unit is length)
+|unit|unit|See chapter "Valid values" section "Unit of Measure"
+|dateOfManufacture|date|Date of manufacture of current part
+|timeRemaining|integer|Remaining life time in days for the current part
+|cyclesRemaining|integer|Remaining cycles for the current part
+|shelfLife|date|Shelf life expiration date
+|location|character|IATA 3-letter-code of closest airport to actual material location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|company|character|Uploading company
+|timeStampEntry|dateTime|Time of database entry
+|dbAction|character|Action why this entry is considered as updated. For a specification of allowed values see below.
+The data that is sent to the customer’s endpoint only contains entries that have been changed on the platform since the last transmission. The field //dbAction// contains the specification what has been changed:
+(% style="width:460px" %)
+|(% style="width:141px" %)**dbAction code**|(% style="width:316px" %)**Description**
+|(% style="width:141px" %)ADD|(% style="width:316px" %)Entry has been added to the database
+|(% style="width:141px" %)DEL|(% style="width:316px" %)Entry has been removed from the database
+|(% style="width:141px" %)UPD|(% style="width:316px" %)Entry has been updated in the database
+The data is provided as a JSON string.
+(% class="box" %)
+(((
+**Example for result body **
+{"data":{"connectorStockId":["6f95cd10-c8bb-4381-8b68-a255571aa2f0"],"materialId":["PN1234"],"pn":["PN‑1234"],"description":["Fuel pump"],"condition":["OH"],"priceUsd":[1000],"sn":["SN001"],"mfr":["MFR001"],"mroApprovalNo":[null],"mroName":["OPREMIC SOLUTIONS"],"leadTime":[1],"tagDate":["2018‑01‑01"],"lastOperator":["TEST AIR"],"lastMsn":["MSN001"],"incidentRelated":[false],"quantity":[1],"unit":["each"],"dateOfManufacture":["2017‑01‑01"],"timeRemaining":[100],"cyclesRemaining":[2000],"shelfLife":["2020‑01‑01"],"location":["Germany"],"company":["OPREMIC SOLUTIONS"],"timeStampEntry":["2018‑01‑01 14:56:23"], “dbAction”:["ADD"]}}
+)))
+== Demands ==
+The following interfaces allow customers on the platform to access and manipulate their own demand data.
+=== Get demands ===
+This interface enables customers to download their uploaded demands.
+==== Data definition ====
+|**Field Name**|**Field Type**|**Description**
+|ownerDemandId|character|Demand ID from stock owner/customer
+|connectorDemandId|character(36)|Internal platform ID
+|pn|character|Part number
+|condition|condition|Minimum condition
+|maximumPriceUsd|numeric|Maximum price in USD
+|mfr|character|Desired manufacturer
+|latestDate|Date|Date the part is required latest
+|tagDate|Date|Tag date not older than
+|incidentRelated|boolean|Incident related allowed?
+|quantity|integer|Quantity of parts
+|unit|unit|Unit of quantity
+|dateOfManufacture|Date|Date of manufacture not older than
+|timeRemaining|integer|Minimum remaining life time in days for the current part
+|cyclesRemaining|integer|Minimum remaining cycles for the current part
+|shelfLife|Date|Minimum shelf life expiration date
+|location|character|IATA 3-letter-code of closest airport to actual required material location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+==== Webservice access ====
+The purpose of this service is to allows customers to get a complete list of demands currently uploaded to the platform.
+* **Request method: **GET
+* **Accepted content type: **application/octet-stream
+* **URL:**// //https:~/~/services.surplusdataconnection.com/getCurrentDemands
+* **Testing URL:**// //https:~/~/services.test.surplusdataconnection.com/getCurrentDemands
+* **URL query parameters:**
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //filter//: Optional. Customer's may filter the returned demands by part number (field: pn).
+* **Return data: **A JSON string containing the response status, response message and a data field with the information given by the data definition.
+* **Example usage:** https:~/~/services.test.surplusdataconnection.com/getCurrentDemands?user=zzz001&key=keyzzz001&filter={“pn”:[“PN-1234”,“PN-2345”]}
+==== UI - File download ====
+The customer may also review and export this information in the //settings// tab under myTrade.
+=== Add demands ===
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|ownerDemandId| |character|Demand ID from owner/customer
+|pn|Yes|character|Part number
+|condition|Yes|condition|Minimum condition
+|maximumPriceUsd| |numeric|Maximum price in USD
+|mfr| |character|Desired manufacturer
+|latestDate| |Date|Date the part is required latest
+|tagDate| |Date|Tag date not older than
+|incidentRelated| |boolean|Incident related allowed?
+|quantity|Yes|integer|Quantity of parts
+|unit|Yes|unit|Unit of quantity
+|dateOfManufacture| |Date|Date of manufacture not older than
+|timeRemaining| |integer|Minimum remaining life time in days for the current part
+|cyclesRemaining| |integer|Minimum remaining cycles for the current part
+|shelfLife| |Date|Minimum shelf life expiration date
+|location| |character|IATA 3-letter-code of closest airport to actual required material location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+==== Webservice access ====
+The purpose of this service is to add demand to the demand transmitted to the interface.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postAddDemand
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postAddDemand
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the complete demand that shall add to the currently uploaded demand.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content**
+)))
+==== UI - File upload ====
+Additional demand may be added via a file upload. The upload button can be found in the //requests// tab under Buy. The uploaded file needs to be one of the formats described in section 7.2.
+Additional demand can also be added manually in the //requests// tab under myTrade.
+=== Remove demands ===
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|connectorDemandId|Yes (but may be empty)|character(36)|Internal platform ID
+|ownerDemandId|Yes (but may be empty)|character|Demand ID from owner/customer
+(% class="wikigeneratedid" %)
+The interface always expects a JSON including both fields, but only one filled must be filled. The other field has to be provided but shall be filled with //null.//
+==== Web service access ====
+The purpose of this service is to remove specific parts of the currently uploaded demand.
+* **Request method: **POST
+* **URL:** https:~/~/services.test.surplusdataconnection.com/postRemoveDemand
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the demand IDs that shall be removed from the currently uploaded demand.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+(% class="box" %)
+(((
+**Example for body content **
+user=zzz001&key=keyzzz001&data={“ownerDemandId”:[“MYCOMP001”,”MYCOMP002”],“connectorDemandId”:[null,null]}
+)))
+==== UI - Manual input ====
+Demands can be manually removed by using the remove button in the //requests// tab under Buy.
+=== Replace demands ===
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|ownerDemandId| |character|(((
+Demand ID from owner/customer
+)))
+|pn|Yes|character|Part number
+|condition|Yes|condition|Minimum condition
+|maximumPriceUsd| |numeric|Maximum price in USD
+|mfr| |character|Desired manufacturer
+|latestDate| |Date|Date the part is required latest
+|tagDate| |Date|Tag date not older than
+|incidentRelated| |boolean|Incident related allowed?
+|quantity|Yes|integer|Quantity of parts
+|unit|Yes|unit|Unit of quantity
+|dateOfManufacture| |Date|Date of manufacture not older than
+|timeRemaining| |integer|Minimum remaining life time in days for the current part
+|cyclesRemaining| |integer|Minimum remaining cycles for the current part
+|shelfLife| |Date|Minimum shelf life expiration date
+|location| |character|IATA 3-letter-code of closest airport to actual required material location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+==== Web service access ====
+The purpose of this service is to completely replace the currently uploaded demand with the demand transmitted to the interface.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postReplaceDemand
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postReplaceDemand
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the complete demand that shall replace the currently uploaded demand.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content **
+user=zzz001&key=keyzzz001&data={“ownerDemandId”:[“MYCOMP001”,”MYCOMP002”],“connectorDemandId”:[”ID234”, “ID123”]}
+)))
+== Workshop ==
+=== Receive workshop information ===
+==== Data definition ====
+|**Field Name**|**Field Type**|**Description**
+|connectorWorkshopId|character(36)|Internal platform ID
+|pn|character|Part number
+|mfr|character|Manufacturer
+|location|character|IATA 3-letter-code of closest airport to actual workshop location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|workscope|workshopEvent|Which task was performed?
+|workscopeCostUsd|numeric|Costs of workshop task in USD
+|handlingCostUsd|numeric|Handling costs of workshop task in USD
+|modificationCostUsd|numeric|Modification costs of workshop task in USD
+|totalCostUsd|numeric|Total costs of workshop task in USD
+|warrantyInfo|character|Information about warranty
+|pnAfterEvent|character|Part number after workshop task
+|hasModificationIncluded|boolean|Whether or not a modification is included in the workshop task (?)
+|shopTimeInDays|integer|Time in days of workshop task
+==== Web service access ====
+The purpose of this service is to receive information as described in chapter //Data definition//.
+* **Request method: **GET
+* **Accepted content type: **application/octet-stream
+* **URL:**// //https:~/~/services.surplusdataconnection.com/getCurrentWorkshopEvents
+* **Testing URL:**// //https:~/~/services.test.surplusdataconnection.com/getCurrentWorkshopEvents
+* **URL query parameters:**
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //filter//: Optional. Customer's may filter the returned workshop events by part number (field: pn) and/or workscope (field: workscope).
+* **Return data: **A JSON string containing the response status, response message and a data field with the information given by the data definition.
+* **Example usage:** https:~/~/services.test.surplusdataconnection.com/getCurrentWorkshopEvents/?user=zzz001&key= keyzzz001&filter={„pn“:[„PN-1234“, „PN-2345“], „workscope“:[„R“]}
+==== Workshop information download ====
+For internal purposes, it is possible to download the provided workshop information manually from the platform by using the manual download functionality on the platform. The export format is a CSV file.
+=== Add workshop data ===
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|ownerWorkshopId| |character|Customer internal demand ID
+|pn|Yes|character|Part number
+|mfr|tbd|character|Manufacturer
+|location|tbd|character|IATA 3-letter-code of closest airport to actual workshop location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|workscope|Yes|workshopEvent|Which task was performed?
+|workscopeCostUsd|tbd|numeric|Costs of workshop task in USD
+|handlingCostUsd|tbd|numeric|Handling costs of workshop task in USD
+|modificationCostUsd|tbd|numeric|Modification costs of workshop task in USD
+|totalCostUsd|tbd|numeric|Total costs of workshop task in USD
+|warrantyInfo|tbd|character|Information about warranty
+|pnAfterEvent|tbd|character|Part number after workshop task
+|hasModificationIncluded|tbd|boolean|Whether or not a modification is included in the workshop task (?)
+|shopTimeInDays|tbd|integer|Time in days of workshop task
+==== Web service access ====
+The purpose of this service is to add workshop data to the platform.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postAddWorkshop
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postAddWorkshop
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the workshop data that shall be added to the currently uploaded workshop data.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content **
+)))
+==== UI - File upload ====
+Additional workshop data may be added via a file upload. The upload button can be found in the workshop tab under myTrade. The uploaded file needs to be one of the formats described in section 7.2.
+Additional workshop data can also be added manually in the //requests// tab under myTrade.
+=== Remove workshop data ===
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|ownerWorkshopId|Yes (but may be empty)|character|Workshop event ID from owner/customer
+|connectorWorkshopId|Yes (but may be empty)|character(36)|Connector internal workshop event ID
+==== Web service access ====
+The purpose of this service is to remove workshop data from the platform.
+* **Request method: **POST
+* **URL:** https:~/~/services.test.surplusdataconnection.com/postRemoveWorkshop
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing customer internal workshop ID or the platform workshop ID.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content **
+user=zzz001&key=keyzzz001&data={“ownerWorkshopId”:[”ID234”],"connectorWorkshopId:[null]}
+)))
+==== UI - Manual deletion ====
+Workshop data can also be removed manually in the //workshop// tab under myTrade.
+=== Replace workshop data ===
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|ownerWorkshopId| |character|Workshop ID from owner/customer
+|pn|Yes|character|Part number
+|mfr|tbd|character|Manufacturer
+|location|tbd|character|IATA 3-letter-code of closest airport to actual workshop location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|workscope|Yes|workshopEvent|Which task was performed?
+|workscopeCostUsd|tbd|numeric|Costs of workshop task in USD
+|handlingCostUsd|tbd|numeric|Handling costs of workshop task in USD
+|modificationCostUsd|tbd|numeric|Modification costs of workshop task in USD
+|totalCostUsd|tbd|numeric|Total costs of workshop task in USD
+|warrantyInfo|tbd|character|Information about warranty
+|pnAfterEvent|tbd|character|Part number after workshop task
+|hasModificationIncluded|tbd|boolean|Whether or not a modification is included in the workshop task (?)
+|shopTimeInDays|tbd|integer|Time in days of workshop task
+==== Web service access ====
+The purpose of this service is to replace all workshop data on the platform with the transmitted data.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postReplaceWorkshop
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postReplaceWorkshop
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the complete workshop data that shall replace the currently uploaded workshop data.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content **
+)))
+==== FTP - File upload ====
+Since uploads of complete workshop data sets are usually large files, a FTP upload possibility is also available. Access will be provided during integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “replaceWorkshop-YYYY-MM-DD”. Uploaded files will be scanned every 15 minutes. Note: there is a short time gap between uploading and accessibility of the data on the platform.
+==== UI - File upload ====
+Under myTrade customers have the opportunity to replace the current workshop data with a file upload. The uploaded file needs to be one of the formats described in section 7.2.
+== Historic data ==
+To enrich the database of material evaluation historic data may transferred to the platform. This chapter describes the interfaces related to historic data.
+=== (% style="color:inherit; font-family:inherit; font-size:23px" %)Historic transaction data(%%) ===
+This web service allows users to transfer information about an external material transaction.
+The platform expects that every data transfer includes the complete history of transaction data.
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|owner_transaction_id|Yes|character|Unique identifier of the data owner/provider
+|pn|Yes|character|Part number
+|condition|Yes|condition|Condition
+|currency|Yes|currency|Currency of the transaction
+|price|Yes|numeric|Price in the provided currency
+|list_price|Yes|numeric|List price of the part number for the buyer at date of transaction in the provided currency
+|mfr|Yes|character|Manufacturer code of the part number
+|transaction_date|Yes|Date|Transaction date
+|tag_date|Yes|Date|Tag date of the PN
+|incident_related|Yes|boolean|Was the part incident related?
+|quantity|Yes|numeric|Quantity of parts in this transaction
+|unit|Yes|unit|Unit of quantity
+|serial_number| |character|Serial number of the part traded
+|date_of_manufacture|Yes|Date|Date of manufacture
+|time_remaining| |integer|Minimum remaining life time in days for the current part at time of the transaction
+|cycles_remaining| |integer|Minimum remaining cycles for the current part at time of the transaction
+|shelf_life| |Date|Minimum shelf life expiration date
+|location|Yes|character|IATA 3-letter-code of closest airport to actual part location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|delivery_date|Yes|Date|Date of delivery at point of destination for the part number
+==== FTP - File upload ====
+Since uploads of complete transaction data sets are usually large files, a FTP upload is also available. Access will be provided during integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “replaceHistoricTransactionData-CUSTOMER-YYYY-MM-DD”.
+==== Web service access ====
+The purpose of this service is to replace all workshop data on the platform with the transmitted data.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postReplaceHistoricTransactionData
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postReplaceHistoricTransactionData
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the complete workshop data that shall replace the currently uploaded workshop data.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content **
+user=zzz01&key=keyzzz01&data={“owner_transaction_id":["duck-01","duck-02"],"pn":["PN1","PN2"],"condition":["AR", "SV"],"currency":["USD", "USD"],"price":[5500, 1200],"list_price":[10000, 4500],"mfr":["MFR001", "MFR002"], "transaction_date":["2019-07-01", "2019-06-15"],"tag_date":["2018-07-05", "2013-06-17"], "incident_related":[FALSE, FALSE]~,~,"quantity":[1, 1], "unit":["each", "each"], "serial_number":["SN-001", null],"date_of_manufacture":["2010-01-01", "1999-05-07"], "time_remaining":[null, null],"cycles_remaining":[null, null],"shelf_life":[null, null],"location":["PVG", "DXB"],"delivery_date":["2019-07-01", "2019-06-15"]}
+)))
+=== Historic workshop data ===
+This web service allows users to transfer information about an external workshop events.
+The platform expects that every data transfer includes the complete history of workshop events.
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|owner_workshop_event_id|Yes|character|Workshop ID from owner/customer
+|pn|Yes|character|Part number
+|condition_before|Yes|condition|Condition before event
+|condition_after|Yes|condition|Condition after event
+|currency|Yes|currency|Currency of the workshop event costs
+|price|Yes|numeric|Price of the event (only shop event, excluding logistic cost, but including replacement cost)
+|mfr|Yes|character|Manufacturer
+|date_event_start|Yes|Date|Start of the event in shop (date)
+|date_event_stop|Yes|Date|Stop of the event in shop (date)
+|date_shipping_start| |Date|Date of shipping to the shop
+|date_shipping_stop| |Date|Date of arrival after shipping at part owner
+|task_performed|Yes|workshopEvent|Task performed in the event (only in general: Repair, partial repair, overhaul …)
+|replacement_done|Yes|boolean|Was the part replaced with another available unit?
+|scraped|Yes|boolean|Was the part scraped while trying to perform the task?
+|quantity|Yes|numeric|Quantity of parts
+|unit|Yes|unit|Unit of quantity
+|serial_number|Yes|character|Serial number of the part
+|date_of_manufacture|Yes|Date|Date of manufacture
+|time_remaining_before| |integer|Minimum remaining life time in days for the current part at start of shop event
+|cycles_remaining_before| |integer|Minimum remaining cycles for the current part at start of shop event
+|shelf_life_before| |Date|Minimum shelf life expiration date at start of shop event
+|time_remaining_after| |integer|Minimum remaining life time in days for the current part at stop of shop event
+|cycles_remaining_after| |integer|Minimum remaining cycles for the current part at stop of shop event
+|shelf_life_after| |Date|Minimum shelf life expiration date at stop of shop event
+|location|Yes|character|IATA 3-letter-code of closest airport to shop location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+==== FTP - File upload ====
+Since uploads of complete workshop data sets are usually large files, a FTP upload possibility is also available. Access will be provided during integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “replaceHistoricWorkshopData-CUSTOMER-YYYY-MM-DD”.
+==== Web service access ====
+The purpose of this service is to replace all workshop data on the platform with the transmitted data.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postReplaceHistoricWorkshopData
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postReplaceHistoricWorkshopData
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the complete workshop data that shall replace the currently uploaded workshop data.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content**
+user=zzz01&key=keyzzz01&data={“owner_transaction_id":["duck-01","duck-02"],"pn":["PN1","PN2"],"condition_before":["AR", "US"],"condition_after":["SV", "OH"],"currency":["USD", "USD"], "price":[5500, 1200],"mfr":["MFR001", "MFR002"], "date_event_start":["2019-07-01", "2019-06-15"],"date_event_stop":["2019-07-05", "2019-06-17"], "date_shipping_start":[null, null],"date_shipping_stop":[null, null], "task_performed":["Repair", "Overhaul"],"replacement_done":[FALSE, FALSE], "scraped":[FALSE, FALSE],"quantity":[1, 1], "unit":["each", "each"], "serial_number":[null, null],"date_of_manufacture":["2010-01-01", "1999-05-07"], "time_remaining_before":[null, null],"cycles_remaining_before":[null, null],"shelf_life_before":[null, null],"time_remaining_after":[null, null],"cycles_remaining_after":[null, null],"shelf_life_after":[null, null],"location":["PVG", "DXB"]}
+)))
+== Consignments ==
+This chapter documents the interfaces that are available for consignment related functionalities.
+=== Receive offered consignments ===
+This API allows consignees to export all offered consignments without a negotiated price from the platform. Based on the data provided by the consignor, the subsequently defined data fields will be filled in the exported dataset.
+==== Data definition ====
+|**Field Name**|**Field Type**|**Description**
+|ownerConsignmentId|character|Consignment stock ID from owner/customer
+|connectorConsignmentId|character(36)|Internal platform ID for consignment material
+|pn|character|Part number
+|description|character|Part description
+|condition|condition|Condition
+|sn|character|Serial number
+|mfr|character|Manufacturer
+|mroApprovalNo|character|MRO approval number
+|mroName|character|MRO name
+|tagDate|Date|Tag date
+|lastOperator|character|Last Operator
+|lastMsn|character|Last MSN
+|incidentRelated|boolean|Was the corresponding aircraft incident related?
+|quantity|integer|Quantity of parts
+|unit|unit|Unit of quantity
+|dateOfManufacture|Date|Date of manufacture of affected part
+|timeRemaining|integer|Remaining life time in days of affected part
+|cyclesRemaining|integer|Remaining cycles of affected part
+|shelfLife|Date|Shelf life expiration date
+|location|character|IATA 3-letter-code of closest airport to actual consignment location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|comment|character|Any type of comment
+==== Web service ====
+The purpose of this service is to allow a supplier to download material that he received as consignment material. For the material returned here, no price was negotiated with the consignment giver.
+* **Request method: **GET
+* **URL:**// //https:~/~/services.surplusdataconnection.com/getOfferedConsignment
+* **Testing URL:**// //https:~/~/services.test.surplusdataconnection.com/getOfferedConsignment
+* **Accepted content type: **application/octet-stream
+* **URL query parameters:**
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+* **Return data: **A JSON string containing the response status, response message and a data field with the information given by the data definition.
+* **Example usage:** https:~/~/services.test.surplusdataconnection.com/getOfferedConsignment/?user=zzz001&key=keyzzz001
+=== Receive cleared consignment ===
+This API allows consignees to export all consignment parts that have already cleared for sale by the consignor from the platform. Based on the data provided by the consignor, the subsequently defined data fields will be filled in the exported dataset.
+==== Data definition ====
+|**Field Name**|**Field Type**|**Description**
+|ownerConsignmentId|character|Consignment stock ID from owner/customer
+|connectorConsignmentId|character(36)|Internal platform ID for consignment material
+|connectorStockId|character(36)|Internal platform stock ID. Only for cleared consignment material available.
+|pn|character|Part number
+|description|character|Part description
+|condition|character|Condition
+|sn|character|Serial number
+|mfr|character|Manufacturer
+|mroApprovalNo|character|MRO approval number
+|mroName|character|MRO name
+|tagDate|Date|Tag date
+|lastOperator|character|Last Operator
+|lastMsn|character|Last MSN
+|incidentRelated|boolean|Was the corresponding aircraft incident related?
+|quantity|integer|Quantity of parts
+|unit|unit|Unit of quantity
+|dateOfManufacture|Date|Date of manufacture of affected part
+|timeRemaining|integer|Remaining life time in days of affected part
+|cyclesRemaining|integer|Remaining cycles of affected part
+|shelfLife|Date|Shelf life expiration date
+|location|character|IATA 3-letter-code of closest airport to actual consignment location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|comment|character|Any type of comment
+==== Web service access ====
+The purpose of this service is to allow a supplier to download material for which he received consignment offers. For the material returned here, an agreed minimum price with the current owner of the material has been established.
+* **Request method: **GET
+* **URL:**// //https:~/~/services.surplusdataconnection.com/getClearedConsignment
+* **Testing URL:**// //https:~/~/services.test.surplusdataconnection.com/getClearedConsignment
+* **Accepted content type: **application/octet-stream
+* **URL query parameters:**
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+* **Return data: **A JSON string containing the response status, response message and a data field with the information given by the data definition.
+* **Example usage:** https:~/~/services.test.surplusdataconnection.com/getClearedConsignment?user=zzz001&key=keyzzz001
+=== Add consignment ===
+This API allows consignors to import consignment parts for a given consignment project on the platform.
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|consignmentProjectId|Yes|character|Internal consignment project ID
+|ownerConsignmentId|Yes|character|Consignment ID from owner/customer
+|pn|Yes|character|Part number
+|description| |character|Part description
+|condition|Yes|character|Condition
+|sn| |character|Serial number
+|mfr|Yes|character|Manufacturer
+|mroApprovalNo| |character|MRO approval number
+|mroName| |character|MRO name
+|tagDate| |Date|Tag date
+|lastOperator| |character|Last Operator
+|lastMsn| |character|Last MSN
+|incidentRelated|Yes|boolean|Was the corresponding aircraft incident related?
+|quantity|Yes|integer|Quantity of parts
+|unit|Yes|unit|Unit of quantity
+|dateOfManufacture| |Date|Date of manufacture of affected part
+|timeRemaining| |integer|Remaining life time in days of affected part
+|cyclesRemaining| |integer|Remaining cycles of affected part
+|shelfLife| |Date|Shelf life expiration date
+|location| |character|IATA 3-letter-code of closest airport to actual consignment location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|comment| |character|Any type of comment
+==== Webservice access ====
+The purpose of this service is to add consignment material to the platform.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postAddConsignmentMaterial
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postAddConsignmentMaterial
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content **
+)))
+==== FTP - File upload ====
+The addition of consignment material can be provided via FTP. Login information will be provided during the integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “addConsignmentMaterial-YYYY-MM-DD”. Uploaded files will be scanned every 15 minutes. So please be aware that there is a short time gap between uploading and accessability of the data on the platform.
+==== UI - Manual upload ====
+Additional consignment material may be uploaded by using the manual upload functionality on the platform.
+=== Remove consignment ===
+This API allows consignors to delete existing consignment parts on the platform.
+==== Data defintion ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|connectorConsignmentId|Yes (but may be empty)|character(36)|Consignment ID from connector
+|ownerConsignmentId|Yes (but may be empty)|character|Consignment ID from owner/customer
+==== Web service access ====
+The purpose of this service is to remove specific parts of the currently uploaded consignment material.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postRemoveConsignment
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postRemoveConsignment
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content **
+user=zzz001&key=keyzzz001&data={“connectorConsignmentId”:[”ID234”],"ownerConsignmentId":[null]}
+)))
+==== UI - Manual upload ====
+Consignment material can be removed manually by using the remove button in the //consignment// tab under myTrade.
+=== Replace consignment ===
+This API allows consignors to replace all existing consignment parts for a given consignment project on the platform. During the upload process there will be a replacement function that deletes parts which have been removed in the new dataset, adds new parts and changes existing parts in case attributes have changed.
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|consignmentProjectId|Yes|character|Internal consignment project ID
+|ownerConsignmentId|Yes|character|Consignment ID from owner/customer
+|pn|Yes|character|Part number
+|description| |character|Part description
+|condition|Yes|condition|Condition
+|sn| |character|Serial number
+|mfr|Yes|character|Manufacturer
+|mroApprovalNo| |character|MRO approval number
+|mroName| |character|MRO name
+|tagDate| |Date|Tag date
+|lastOperator| |character|Last Operator
+|lastMsn| |character|Last MSN
+|incidentRelated|Yes|boolean|Was the corresponding aircraft incident related?
+|quantity|Yes|integer|Quantity of parts
+|unit|Yes|unit|Unit of quantity
+|dateOfManufacture| |Date|Date of manufacture of affected part
+|timeRemaining| |integer|Remaining life time in days of affected part
+|cyclesRemaining| |integer|Remaining cycles of affected part
+|shelfLife| |Date|Shelf life expiration date
+|location| |character|IATA 3-letter-code of closest airport to actual consignment location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+|comment| |character|Any type of comment
+==== Web service access ====
+The purpose of this service is to replace the currently uploaded consignment material. Note: all data will be replaced regardless of the negotiation status.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postReplaceConsignment
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postReplaceConsignment
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example for body content **
+)))
+==== FTP access - file upload ====
+Since uploads of complete consignment material data are usually large files, a FTP upload is also available. Access will be provided during integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “replaceConsignmentMaterial-YYYY-MM-DD”. Uploaded files will be scanned every 15 minutes. Note: there is a short time gap between uploading and accessibility of the data on the platform.
+==== UI access - file upload ====
+Under myTrade customers have the opportunity to replace the current stock by first removing their complete consignment material in the //settings// tab under myTrade and then uploading a new file in the //add consignments// tab. The uploaded file needs to be one of the formats described in section 7.2.
+=== Update consignment pricing ===
+This API allows consignees to import proposed pricing data for consignment parts on the platform.
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|connectorConsignmentId|Yes|character(36)|Consignment ID from connector
+|minPriceUsd|Yes|numeric|Minimum price per each in USD
+|expectedPriceUsd|Yes|numeric|Currently expected market price in USD
+|comment| |character|Any type of comment
+==== Webservice access ====
+The purpose of this service is to add a price to the consignment material offered. The consignment supplier may then agree to the offered price and thereby finally assign the material to the customer.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postUpdateConsignmentPricing
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postUpdateConsignmentPricing
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+** Response status: "success" or "error". Depending on the result of the consistency checks of the data sent and the processing results on the platform.
+Optional fields can be provided otherwise shall be filled with //null.//
+==== UI - File upload ====
+Consignment prices may be uploaded using the manual upload functionality in the //consignment// tab under myTrade. The uploaded file needs to be one of the formats described in section 7.2.
+==== UI - Manual input ====
+Consignment prices may also be assigned by updating consignment materials in the //consignment// tab under myTrade.
+== Transaction related data ==
+This chapter contains interfaces that deal with transaction related information.
+=== Transaction data (Consignment only) ===
+This webservice allows users to transfer information about an external material transaction for parts listed on the platform.
+==== Data definition ====
+|**Field Name**|**Required**|(% style="width:210px" %)**Field Type**|(% style="width:759px" %)**Description**
+|ownerTransactionId| |(% style="width:210px" %)character|(% style="width:759px" %)Customer internal transaction ID
+|connectorConsignmentId|Yes|(% style="width:210px" %)character(36)|(% style="width:759px" %)Consignment ID from connector
+|pn|Yes|(% style="width:210px" %)character|(% style="width:759px" %)Part number
+|condition|Yes|(% style="width:210px" %)character|(% style="width:759px" %)Condition of the part. For a list of allowed values see chapter "Valid Values".
+|currency|Yes|(% style="width:210px" %)currency|(% style="width:759px" %)Currency of the transaction
+|price|Yes|(% style="width:210px" %)numeric|(% style="width:759px" %)Price
+|mfr| |(% style="width:210px" %)character|(% style="width:759px" %)Manufacturer
+|date|Yes|(% style="width:210px" %)Date|(% style="width:759px" %)Transaction date
+|tagDate| |(% style="width:210px" %)Date|(% style="width:759px" %)Tag date of the PN
+|incidentRelated| |(% style="width:210px" %)boolean|(% style="width:759px" %)Incident related?
+|quantity|Yes|(% style="width:210px" %)integer|(% style="width:759px" %)Quantity of parts
+|unit|Yes|(% style="width:210px" %)unit|(% style="width:759px" %)Unit of quantity
+|sn| |(% style="width:210px" %)character|(% style="width:759px" %)Serial number of the part
+|dateOfManufacture| |(% style="width:210px" %)Date|(% style="width:759px" %)Date of manufacture
+|timeRemaining| |(% style="width:210px" %)integer|(% style="width:759px" %)Minimum remaining life time in days for the current part
+|cyclesRemaining| |(% style="width:210px" %)integer|(% style="width:759px" %)Minimum remaining cycles for the current part
+|shelfLife| |(% style="width:210px" %)Date|(% style="width:759px" %)Minimum shelf life expiration date
+|location| |(% style="width:210px" %)character|(% style="width:759px" %)IATA 3-letter-code of closest airport to actual consignment location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+==== FTP - File upload ====
+Since uploads of complete transaction data sets are usually large files, a FTP upload is also available. Access will be provided during integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “replaceHistoricTransactionData-CUSTOMER-YYYY-MM-DD”.
+==== UI - File upload ====
+Under myTrade customers have the opportunity to add transaction data with a file upload. The uploaded file needs to be one of the formats described in section 7.2.
+=== Add purchase order ===
+The "Add purchase order" interface allows users to submit PO information to the platform. The submitted PO is then available to the seller on the platform.
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|poNumber|Yes|character|Purchase order number
+|poDate| |Date|Purchase order date
+|customerReferenceNo|Yes|character|Reference number of customer
+|sellerReferenceNo| |character|Reference number of seller
+|shipTo|Yes|character|Customer name
+|shipViaMethod| |character|Ship via method
+|addressLine01|Yes|character|Address line 1
+|addressLine02| |character|Address line 2
+|addressLine03| |character|Address line 3
+|country| |character|Customer country
+|zipCode|Yes|character|Customer ZIP code
+|state|Yes|character|Customer state
+|freightAccount| |character|Freight account
+|vatId| |character|Vat ID number
+|positions|Yes|array|Array with purchased parts
+| poPosition|Yes|integer|Position number of purchase order
+| connectorStockId|Yes|character|Connector internal id
+| partNumber|Yes|character|Part number
+| serialNumber| |character|Serial number
+| condition|Yes|character|Part condition
+| quantity|Yes|integer|Quantity of parts
+| unit|Yes|character|Unit of quantity
+| priceUsdPerUnit|Yes|numeric|Price of one unit
+==== Webservice access ====
+The purpose of this service is to report sales of material.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postAddPurchaseOrder
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postAddPurchaseOrder
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+** Response status: "success" or "error". Depending on the result of the consistency checks of the data sent and the processing results on the platform.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example body content**
+user=zzz01&key=keyzzz01&data={"poNumber":["12345"],"poDate":["2019-01-11"],"customerReferenceNo":["PO_CUST_01"],"sellerReferenceNo":["PO_SELL_01"],"shipTo":["Opremic solutions GmbH"],"shipViaMethod":[null],"addressLine01":["Mergenthaler Allee 73-75"],"addressLine02":[null],"addressLine03":[null],"country":["Germany"],"zipCode":["65760"],"state":["Hessen"],"freightAccount":[null],"vatId":["DE999999999"],"positions":{"poPosition":["1","2","3"],"connectorStockId":["1", "2", "3"],"partNumber":["10-516032","13100-350-PMA","133-894-2"],"serialNumber":["7-CA-A-44894","X028441B","67152"],"condition":["NE","SV","OH"],"priceUsdPerUnit":[130.54,55.66,969.89],"unit":["EACH","EACH","EACH"],"quantity":["1", "1", "4"]}}
+)))
+==== UI - Manual input ====
+Sales may also be reported by updating materials in the listings tab under myTrade.
+== Material related data ==
+=== Generic part information ===
+The send generic part information interface allows users to submit generic material information. This information is then used to enrich the data on the platform.
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|pn|Yes|character|Part number of the material
+|mfr|Yes|Date|Manufacturer code of the material
+|base_unit|Yes|character|What is the standard unit for this material?
+|description_short|Yes|character|Short description of material
+|description_long|Yes|character|Long description of material
+|max_flight_time| |integer|Maximum flight time before repair or overhaul
+|max_cycles| |integer|Maximum cycles before repair or overhaul
+|max_shelf_life| |integer|Maximum shelf life
+|back_to_birth|Yes|boolean|Does the part require back to birth documentation?
+|ata_chapter|Yes|character|ATA chapter coding
+|aircraft_type| |character|List of all aircraft type the part can be used. Comma separated.
+|contains_kerosine|Yes|boolean|Can the part contain kerosine?
+|hazard_item|Yes|boolean|Is this a hazard item?
+|list_price|Yes|numeric|Current list price of the part number for the company
+|list_price_currency|Yes|character|Currency of the current list price
+|motor_type| |character|List of motor types the part can be used. Comma separated.
+|material_domain|Yes|character|Is this a Engine (field value: ENG), Component (field value: COM), Airframe (field value: ARC), Landing gear (field value: LDG) or a consumable&expandable (field value: CUE) part.
+|repairable|Yes|character|Can the part be fully (field value: full_repair) or partially repaired (field value: partial_repair)?
+|overhaulable|Yes|boolean|Can the part be overhauled?
+|ar_allowed|Yes|boolean|Should the part be bought in your company in AR condition?
+|sv_allowed|Yes|boolean|Should the part be bought in your company in SV condition?
+==== FTP - File upload ====
+Since uploads of complete generic material data sets are usually large files, a FTP upload is also available. Access will be provided during integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “replaceMaterialGeneric-CUSTOMER-YYYY-MM-DD”.
+==== Webservice access ====
+The purpose of this service is to replace the generic material catalogue data.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postReplaceMaterialGeneric
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postReplaceMaterialGeneric
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+** Response status: "success" or "error". Depending on the result of the consistency checks of the data sent and the processing results on the platform.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example body content**
+user=zzz01&key=keyzzz01&data={"pn":["12345"]}
+)))
+=== Interoperability and modification information ===
+The send generic part information interface allows users to submit generic material information. This information is then used to enrich the data on the platform.
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|pn|Yes|character|Part number that can be replaced
+|mfr|Yes|Date|MFR code of the part that can be replaced
+|interop_pn|Yes|character|Part number that can be used instead
+|interop_mfr|Yes|character|MFR code of the part that can be used instead
+|modification_necessary|Yes|boolean|Is a modification necessary to use the interop part number?
+|modification_costs|Yes, if modification_necessary = TRUE|numeric|In case a modification is necessary, what are the respective costs?
+|modification_costs_currency|Yes, if modification_necessary = TRUE|character|Currency of the modification costs
+==== FTP - File upload ====
+Since uploads of complete interoperability and modification data sets are usually large files, a FTP upload is also available. Access will be provided during integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “replaceMaterialModsAndInterops-CUSTOMER-YYYY-MM-DD”.
+==== Webservice access ====
+The purpose of this service is to replace the generic material catalogue data.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postReplaceMaterialModsAndInterops
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postReplaceMaterialModsAndInterops
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+** Response status: "success" or "error". Depending on the result of the consistency checks of the data sent and the processing results on the platform.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example body content**
+user=zzz01&key=keyzzz01&data={"pn":["12345"]}
+)))
+=== Request documentation ===
+==== UI - Manual input ====
+The documentation for given material can be requested from the stock supplier via the UI. In the consignment overview a special button will trigger a notice to the supplier.
+=== Upload documentation ===
+==== UI - Manual input ====
+The documentation for given material can be uploaded via the UI. In the consignment overview of the supplier the requests for documentation are highlighted. The supplier can then upload documentation in pdf format.
+=== Download documentation ===
+==== UI - Manual input ====
+In case the supplier has provided documentation for a part in stock, the documentation can be downloaded in the consignment overview screen. The documentation will be provided in pdf format.
+=== Receive surplus marker ===
+==== Data definition ====
+|**Field Name**|**Field Type**|**Description**
+|supplier|character|Name of the supplying company
+|connectorSurplusMarkerId|character|Surplus marker ID from connector
+|pn|character|Part number
+|mfr|character|Manufacturer
+|marker|character|The type of surplus marker
+|comment|character|Any type of comment
+==== Webservice access ====
+The purpose of this service is to allow customers to receive a complete list of surplus markers currently uploaded to the platform. The service is accessed by a GET request.
+* **Request method: **GET
+* **URL:** https:~/~/services.surplusdataconnection.com/getSurplusMarker
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/getSurplusMarker
+* **Accepted content type: **application/octet-stream
+* **Parameters encoded in URL**
+** //user//: Customer’s individual login name for the platform account, e.g., opr001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+* **Return data: **A JSON string containing the response status, response message and a data field with the information given by the data definition.
+* **Example usage:** https:~/~/services.test.surplusdataconnection.com/getSurplusMarkers?user=zzz001&key=keyzzz001
+==== UI - Manual input ====
+The customer may also review and export this information in the //settings// tab under myTrade.
+=== Add surplus marker ===
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|pn|Yes|character|Part number
+|mfr|Yes|character|Manufacturer
+|marker|Yes|character|The type of surplus marker. For a list of allowed values see chapter "Valid Values".
+|comment| |character|Any type of comment
+==== Webservice access ====
+The purpose of this service is to add surplus markers to the platform.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postAddSurplusMarker
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postAddSurplusMarker
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+)))
+==== FTP - File upload ====
+The addition of surplus markers can be provided via FTP. Login information will be provided during the integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “addSurplusMarkers-YYYY-MM-DD”. Uploaded files will be scanned every 15 minutes. Note: there is a short time gap between uploading and accessibility of the data on the platform.
+==== UI - File upload ====
+Additional surplus markers may be uploaded by using the manual upload functionality on the platform.
+==== UI - Manual input ====
+Surplus markers may also be added in the //settings// tab under myTrade.
+=== Remove surplus marker ===
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|connectorSurplusMarkerId|Yes|character|Connector internal surplus marker ID
+==== Webservice ====
+The purpose of this service is to remove surplus markers from the platform.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postRemoveSurplusMarker
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postRemoveSurplusMarker
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+**Example body content**
+user=zzz01&key=keyzzz01&data={“connectorSurplusMarkerId”:[”ID234”]}
+)))
+==== UI - Manual input ====
+Surplus markers may also be removed in the //settings// tab under myTrade.
+=== Replace surplus markers ===
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|pn|Yes|character|Part number
+|mfr|Yes|character|Manufacturer
+|marker|Yes|character|The type of surplus marker. For a list of allowed values see chapter "Valid Values".
+|comment| |character|Any type of comment
+==== Webservice access ====
+The purpose of this service is to replace the currently uploaded surplus markers. Note: data will be replaced without further prompt.
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postReplaceSurplusMarkers
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postReplaceSurplusMarkers
+* **Accepted content type: **application/x-www-form-urlencoded
+* **Parameters encoded in the body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided otherwise shall be filled with //null.//
+(% class="box" %)
+(((
+)))
+==== FTP - File upload ====
+The replacement of surplus markers can be provided via FTP. Login information will be provided during the integration project. The uploaded file needs to be one of the formats described in section 7.2. The filename needs to be “replaceSurplusMarkers-YYYY-MM-DD”. Uploaded files will be scanned every 15 minutes. Note: there is a short time gap between uploading and accessibility of the data on the platform.
+==== UI - File upload ====
+Under myTrade customers have the opportunity to replace the current surplus markers by first removing all surplus markers in the //settings// tab under myTrade and then uploading a new file at the same place. The uploaded file needs to be one of the formats described in section 7.2.
+=== Request Fair Market Values ===
+This interface allows customers to request the current valid fair market value for part numbers.
+==== Request data definition ====
+The request of fair market values can contain the following data fields
+|**Field Name**|**Required**|**Field Type**|**Description**
+|pn|No|character|Part number
+|condition|No|character|The part condition for which the fair market value is requested, If not provided the default "SV" is applied
+==== Response data definition ====
+|**Field Name**|**Field Type**|**Description**
+|pn|character|Part number
+|fmv_usd|numeric|The current valid fair market value in USD
+|fmv_quality|numeric|The quality stage of the fair market values
+|fmv_condition|character|The part condition for which the fair market value is valid
+==== Webservice access ====
+* **Request method: **GET
+* **URL:** https:~/~/services.surplusdataconnection.com/getFairMarketValue
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/getFairMarketValue
+* **Accepted content type: **application/octet-stream
+* **Parameters encoded in URL:**
+** //user//: The customer’s individual login name for the platform account, e.g., zzz001
+** //key//: The customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: Optional. Customers may request the fair market value only for a specified set of part numbers.
+* **Return data: **A JSON string containing the response status, response message and the fair market value data as defined above
+* **Example usage:** http:~/~/services.test.surplusdataconnection.com/getFairMarketValue?user=zzz001&key= keyzzz001&data={"pn":["PN1", "PN2", "PN3"], "condition":[null, "AR", "SV"]}
+Optional fields can be provided but shall otherwise be filled with //null//. The complete data parameter may be filled with null: http:~/~/services.test.surplusdataconnection.com/getCurrentInventory?user=zzz001&key= keyzzz001&data={"pn":[null], "condition":[null]} to request the fair market value for all available part numbers on the platform.
+(% class="box" %)
+(((
+**Example for result body**
+{"status":["success"],"message":["Available FMV returned."],"data":{"pn":["PN1","PN2", "PN3"],"fmv_usd":[100,200,300],"fmv_quality":[3,6,4],"fmv_condition":["SV","AR","SV"]}
+)))
+== Configuration data ==
+=== Pricing rules ===
+This interface allows customers to upload company and/or material based pricing rules. These rules are used to show individual prices for different companies on the platform.
+==== Data definition ====
+|**Field Name**|**Required**|**Field Type**|**Description**
+|modification_of_price|Yes|numeric|(((
+Value of price modification. Based on the chosen modification operation, different types of values are allowed.
+)))
+|modification_operation|Yes|character|Mathematical operation to calculate individual price: Possible field values are ADD (addition of absolute top up), MULT (multiply base price with factor
+|target_company|Yes|character|Internal company defined in company translations for which the price modification should be applied.
+|target_part_number| |character|Should the price modification be restricted to a specific part number
+|target_mfr| |character|Should the price modification be restricted to a specific manufacturer
+|target_condition| |condition|Should the price modification be restricted to a specific condition. For a list of allowed values please see below.
+==== Webservice access ====
+* **Request method: **POST
+* **URL:** https:~/~/services.surplusdataconnection.com/postReplacePricingRules
+* **Testing URL:** https:~/~/services.test.surplusdataconnection.com/postReplacePricingRules
+* **Accepted content type: **application/octet-stream
+* **body:** //user, key, data//
+** //user//: Customer’s individual login name for the platform account, e.g., zzz001
+** //key//: Customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+** //data//: A JSON string containing the data definition information.
+* **Output: **A JSON string containing the response status, response message and an empty data field.
+Optional fields can be provided but shall otherwise be filled with //null//.
+(% class="box" %)
+(((
+**Example body content**
+user=zzz01&key=keyzzz01&data={“modification_of_price":[100, 1.5],"modification_operation":["ADD","MULT"],"target_company":["DuckburgAir", "MacMoneysackAir"],"target_part_number":[null, "740119H"],"target_mfr":[null, null], "target_condition":[null, "SV"]}
+)))
+= Valid values =
+== Generic type formats ==
+Generic file formats are coded like this:
+* boolean: TRUE or FALSE
+* character: Any sequence of characters in UTF8 encoding.
+* date: Formatted as character in YYYY-MM-DD
+* dateTime: Formatted as character in YYYY-MM-DD HH:MM:SS. Baseline is always UTC.
+* integer: Plain number. Only digits allowed. No leading zeros.
+* numeric: Number with (.) as decimal separator. No other separators allowed.
+* currency: The abbreviation for the used currency. A three-letter character string according to the ISO 4217 Currency Code, e.g., USD or EUR.
+* surplusMarker: Either 1 or 2. 1 indicates a medium severity, 2 indicates a high severity.
+* workshopEvent: One of the following character strings: R, O, C, I, M, Y
+== Condition ==
+The field //condition// contains the two-letter industry standard for the condition of the part as a character string. These are:
+* NE = new
+* NS = new surplus
+* OH = overhauled
+* SV = serviceable
+* AR = as removed
+* US = unserviceable
+== Unit of Measure ==
+=== Base units ===
+Every combination of part number and manufacturer is assigned to a base unit. This base unit serves to make stock on the platform more streamlined. Uploads containing part number / manufacturer combinations with differing base units will either be automatically converted into the base unit or will be rejected if there is no valid conversion of uploaded unit and base unit.
+**Example:** Suppose we try to upload a part with part number "PN1", manufacturer "MFR1" and unit "boxes" but the base unit for "PN1" on the platform is "each". The upload will be rejected and return an error saying that there is no possible conversion of the given units. On the other hand, if we try to upload a part with unit "feet" and the base unit is "meters", the platform will automatically convert the quantity according to the right conversion factors and add the stock to the platform.
+=== Convertible units ===
+**Lengths:** feet, inches, meters, yards
+**Areas:** square feet, square meters
+**Volumes:** cubic meters, gallons, liters, pints, quarts
+**Mass:** grams, kilos, metric tons, ounces, pounds
+=== Inconvertible units ===
+boxes, each, packages, per hundred, per thousand, reels, rolls, sets, spools, tubes, pairs
+=== Serial number restrictions ===
+Any //unit// field is a special case which has restrictions based on the type of measure. Due to the nature of serial numbers, every part number, manufacturer and serial number combination exists only once. Therefore, we check uploads containing serial numbers against duplicates of those types. There is an inherent difference between convertible units and inconvertible units and their respective quantity. While parts like cables may have a serial number and a quantity > 1, this cannot happen for inconvertible units such as "boxes" or "each".
+**Example:** It is not possible to upload part "PN-1234" with serial number "SN001", manufacturer "MFR001", quantity 4 and unit "each", as only one part of that manufacturer can have this serial number, whereas using the same data and unit “meters” would be a valid input. Therefore, we have the following two categories of units:
+=== Serial number blocked units ===
+boxes, each, packages, per hundred, per thousand, reels, rolls, sets, spools, tubes, pairs
+=== Serial number free units ===
+feet, gallons, grams, inches, kilos, liters, meters, ounces, pints, pounds, quarts, square feet, square meters, yards
+== Visibility ==
+When adding or updating stock on the platform, customer's are able to specify for which companies the stock shall be visible. To use this feature, customer's must have established a company translation table first. To do this, go to surplusdataconnection.com, log-in with customer's username and password and navigate to Settings > Company. Here, customer's can manage their company translations. Customer's can add new translations, modify existing translations or upload a translation table that replaces customer's current translations. SC will then automatically match customer's internal company IDs with those on the platform and change inputs and outputs accordingly.
+After adding the translation table, customer's may then use the additional web service parameter //visibility//. Customer's simply add “&visibility=[company IDs]” to their POST request to make the uploaded stock visible for all transmitted company IDs. [company IDs] has to be a JSON-string containing all customer's internal company IDs for which the uploaded stock shall be visible on the platform. For example:
+(% class="box" %)
+(((
+https:~/~/test.services.surplusdataconnection.com/postAddStock?user=zzz001&key=keyzzz001&visibility=["internalId001","internalId002","internalId005"]
+)))
+== Surplus indicator ==
+The surplus indicator defines the repairability and re-usability for surplus material of a given part number. The platform differentiates three options:
+|**Surplus option**|**Value**
+|Fully repairable|REPAIR
+|Partial repairable|PARTIAL
+|Not repairable|NOREPAIR
+== Location ==
+The location of material, demands, workshop data, transactions, or consignment material is defined as IATA 3-letter-code of closest airport. Only valid 3-letter-codes are accepted. Datasets with any other values will be rejected.
+An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
+== File uploads ==
+=== Format of csv files ===
+It is possible to provide many data inputs as csv files. The files can either be uploaded via FTP or in the UI. The generic csv file format is as follows:
+The files use comma (,) as separator. First row is always the column header. Column headings are the field names. Every data field is quoted regardless of content. As quote symbol (“) is used.
+All rows have to have the same number of columns.
+=== Format of xml files ===
+If it is possible to provide many data inputs as xml files. The files can either be uploaded via FTP or in the UI. The generic file definition in xsd format will be provided by our project team during the integration project or can be downloaded from our documentation platform.
+)))
+(% class="col-xs-12 col-sm-4" %)
+(((
+(% class="box" %)
+(((
+(% class="lead" %)
+[[image:Main.WebHome@istock-513805836_medium.jpg||alt="Aircraft Engines"]]
+(% class="lead" id="HEngagementPlanforOpremicConnector" %)
+**Technical Documentation for Opremic Platform**
+|=(% style="width: 206px;" %)Version|(% style="width:405px" %)1.2
+|=(% style="width: 206px;" %)Last changes|(% style="width:405px" %)2019-09-11
+|=(% style="width: 206px;" %)Changes made by|(% style="width:405px" %)SV
+|=(% style="width: 206px;" %)Contact|(% style="width:405px" %)info@surplusdataconnection.com
+)))
+(% class="box" %)
+(((
+**Contents**
+{{toc/}}
+)))
+)))
+)))
+----
+(% class="small" %)This document contains confidential technical data, including proprietary information which is the property of Opremic trade GmbH. Disclosure of this data to you is expressly conditioned upon your assent that its use is limited to use within your company only. Any other use is strictly prohibited.
+© IATA MRO SmartHub | Terms of Use | Privacy and Data Protection Policy
+
