@@ -31,19 +31,41 @@ Data definition
      - numeric
      - Maximum price in USD
    * - mfr
+     - Yes
      - character
      - Desired manufacturer
    * - latestDate
      - No
      - Date
      - Date the part is required latest
-|tagDate| |Date|Tag date not older than
-|incidentRelated| |boolean|Incident related allowed?
-|quantity|Yes|integer|Quantity of parts
-|unit|Yes|unit|Unit of quantity
-|dateOfManufacture| |Date|Date of manufacture not older than
-|timeRemaining| |integer|Minimum remaining life time in days for the current part
-|cyclesRemaining| |integer|Minimum remaining cycles for the current part
+   * - tagDate
+     - No
+     - Date
+     - Tag date not older than
+   * - incidentRelated
+     - No
+     - boolean
+     - Incident related allowed?
+   * - quantity
+     - Yes
+     - integer
+     - Quantity of parts
+   * - unit
+     - Yes
+     - unit
+     - Unit of quantity
+   * - dateOfManufacture
+     - No
+     - Date
+     - Date of manufacture not older than
+   * - timeRemaining
+     - No
+     - integer
+     - Minimum remaining life time in days for the current part
+   * - cyclesRemaining
+     - No
+     - integer
+     - Minimum remaining cycles for the current part
 |shelfLife| |Date|Minimum shelf life expiration date
 |location| |character|IATA 3-letter-code of closest airport to actual required material location. An overview of all IATA codes can be found [[here>>https://en.wikipedia.org/wiki/IATA_airport_code]]
 
