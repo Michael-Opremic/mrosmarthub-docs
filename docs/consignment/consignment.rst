@@ -1,6 +1,6 @@
-****************
+******************
 Consignment Module
-****************
+******************
 
 .. include:: consignment_preliminaries.rst
 .. include:: consignment_consignor.rst
