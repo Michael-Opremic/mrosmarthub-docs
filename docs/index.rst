@@ -11,6 +11,7 @@ Welcome to MROSmartHub's documentation!
    :caption: Contents:
 
    api/api
+   consignment/consignment
 
 Indices and tables
 ==================
