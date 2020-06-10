@@ -2,18 +2,22 @@ Push services for available stock changes
 -----------------------------------------
 
 To reduce the number of empty responses on scheduled requests for changes in inventory, the platform can proactively send data to a specified endpoint in the customer's IT system that tracks changes in visible stock since the last data transmission.
-The endpoint on the customer side has to be set up by the customer. Several requirements have to be fulfilled by this endpoint:
-* The connection should be SSL encrypted.
-* The endpoint should accept HTTP POST requests.
-* The endpoint should be secured with credentials. These credentials are provided as header fields.
-* The endpoint should accept data in format and scope as defined in the following. The data is provided in the body of the request.
-It is highly recommended that the customer stores the internalStockId that is provided by the platform to identify the correct stock entries in case multiple lines for the same part number exist.
+The endpoint on the customer side has to be set up by the customer. 
+
+Several requirements have to be fulfilled by this endpoint:
+
+- The connection should be SSL encrypted.
+- The endpoint should accept HTTP POST requests.
+- The endpoint should be secured with credentials. These credentials are provided as header fields.
+- The endpoint should accept data in format and scope as defined in the following. The data is provided in the body of the request.
+
+It is highly recommended that the customer stores the **internalStockId** that is provided by the platform to identify the correct stock entries in case multiple lines for the same part number exist.
 
 
 Data definition
 ^^^^^^^^^^^^^^^
 
-.. list-table:: getCurrentInventory return data definition
+.. list-table:: 
    :class: tight-table
    :widths: 20 10 70
    :header-rows: 1
@@ -98,12 +102,22 @@ Data definition
      - Action why this entry is considered as updated. For a specification of allowed values see below.
 
 
-The data that is sent to the customer’s endpoint only contains entries that have been changed on the platform since the last transmission. The field //dbAction// contains the specification what has been changed:
+The data that is sent to the customer's endpoint only contains entries that have been changed on the platform since the last transmission. The field *dbAction* contains the specification what has been changed:
 
-|(% style="width:141px" %)**dbAction code**|(% style="width:316px" %)**Description**
-|(% style="width:141px" %)ADD|(% style="width:316px" %)Entry has been added to the database
-|(% style="width:141px" %)DEL|(% style="width:316px" %)Entry has been removed from the database
-|(% style="width:141px" %)UPD|(% style="width:316px" %)Entry has been updated in the database
+.. list-table::
+   :class: tight-table
+   :widths: 30 70
+   :header-rows: 1
+   
+   * - dbAction code
+     - Description
+   * - ADD
+     - Entry has been added to the database
+   * - DEL
+     - Entry has been removed from the database
+   * - UPD
+     - Entry has been updated in the database
+
 
 The data is provided as a JSON string.
 
@@ -139,18 +153,6 @@ Example for result body
 	"location":["Germany"],
 	"company":["OPREMIC SOLUTIONS"],
 	"timeStampEntry":["2018‑01‑01 14:56:23"],
-	“dbAction”:["ADD"]
+	"dbAction":["ADD"]
      }
   }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -10,7 +10,7 @@ The purpose of this service is to return all currently uploaded parts that are a
 Data definition
 ^^^^^^^^^^^^^^^
 
-.. list-table:: getCurrentInventory return data definition
+.. list-table::
    :class: tight-table
    :widths: 20 10 70
    :header-rows: 1
@@ -95,15 +95,22 @@ Data definition
 Web service access
 ^^^^^^^^^^^^^^^^^^
 
-:Request method: GET
-:URL: https:~/~/services.surplusdataconnection.com/getAvailableStock
-:Testing URL: https:~/~/services.test.surplusdataconnection.com/getAvailableStock
-:URL query parameters: user, key
-   - **user:** The login name of the user's account, e.g., zzz001
-   - **key:** The customer's web service security key associated with the user's account. This key can be changed in the parameters section of customer's settings in SC.
-:Response: A JSON string containing the response status, response message and data with all parts that are visible to the requesting company, excluding own uploaded stock. The return fields are given in the table below. Empty fields will be returned as null.
-:Example usage: https:~/~/services.test.surplusdataconnection.com/getAvailableStock?user=zzz001&key=keyzzz001
+- **Request method:** GET
+- **URL:** https://services.surplusdataconnection.com/getAvailableStock
+- **Testing URL:** https://services.test.surplusdataconnection.com/getAvailableStock
+- **URL query parameters:** user, key
+    - *user:* The login name of the user's account, e.g., zzz001
+    - *key:* The customer's web service security key associated with the user's account. This key can be changed in the parameters section of webservice settings in company administration.
+- **Response:** A JSON string containing the response status, response message and data with all parts that are visible to the requesting company, excluding own uploaded stock. The return fields are given in the table below. Empty fields will be returned as null.
 
+
+Example usage
+^^^^^^^^^^^^^
+
+.. code-block::
+
+    https://services.test.surplusdataconnection.com/getAvailableStock?user=zzz001&key=keyzzz001
+    
 
 Example for result body
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -115,7 +122,7 @@ Example for result body
      "message":["Available stock returned."],
      "data":  {
 	"connectorStockId":["6f95cd10-c8bb-4381-8b68-a255571aa2f0"],
-	materialId":["PN1234"],
+	"materialId":["PN1234"],
 	"pn":["PN‑1234"],
 	"description":["Fuel pump"],
 	"condition":["OH"],
@@ -137,9 +144,6 @@ Example for result body
 	"shelfLife":["2020‑01‑01"],
 	"location":["Germany"],
 	"company":["OPREMIC SOLUTIONS"],
-	"timeStampEntry":["2018‑01‑01 14:56:23"]	
+	"timeStampEntry":["2018‑01‑01 14:56:23"]
      }
    }
-
-
-

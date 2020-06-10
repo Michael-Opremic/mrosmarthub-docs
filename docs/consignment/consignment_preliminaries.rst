@@ -1,0 +1,8 @@
+The term consignment describes the process of consigning any material to another person or company but retaining the legal ownership until the material are sold. The act of consigning can be the physical transfer/shipping of the material or the virtual transfer of the material with the intension to sell the material. The legal owner of the material is known as the consignor that sends/transfers the material to the consignee, who is taking care of the material.
+
+The consignment module of IATA MRO SmartHub supports the consignment process by providing all necessary functionalities to consign material. The consignment module is applicable to both types of consignment; the one where material is physically transferred and the one where material is only virtually transferred.
+
+The main feature of IATA MRO SmartHub enriching the consignment process is the possibility to completely handle the process of material pricing on the platform. Furthermore, PDF documentation can be requested by the consignee and easily provided by the consignor. Using the consignment module of IATA MRO SmartHub no external communication and managing of the consignment material is necessary. All relevant information and documents are collected and stored on IATA MRO SmartHub.
+
+- **Consignor** - The relevant functionalities for the consignor are located under Sell - Consignment.
+- **Consignee** - The relevant functionalities for the consignor are located under Buy - Consignment.

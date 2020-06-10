@@ -34,15 +34,15 @@ Web service access
 
 The purpose of this service is to remove specific parts of the currently uploaded inventory.
 
-:Request method: POST
-:URL: https:~/~/services.surplusdataconnection.com/postRemoveStock
-:Testing URL: https:~/~/services.test.surplusdataconnection.com/postRemoveStock
-:Accepted content type: application/x-www-form-urlencoded
-:Parameters encoded in the body:
- - **user:** The customer’s individual login name for the platform account, e.g., zzz001
- - **key:** The customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
- - **data:** A JSON string containing the stock IDs that shall be removed from the currently uploaded inventory.
-:Output: A JSON string containing the response status, response message and an empty data field.
+- **Request method:** POST
+- **URL:** https://services.surplusdataconnection.com/postRemoveStock
+- **Testing URL:** https://services.test.surplusdataconnection.com/postRemoveStock
+- **Accepted content type:** application/x-www-form-urlencoded
+- **Parameters encoded in the body:**
+     - *user:* The customer’s individual login name for the platform account, e.g., zzz001
+     - *key:* The customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+     - *data:* A JSON string containing the stock IDs that shall be removed from the currently uploaded inventory.
+- **Output:** A JSON string containing the response status, response message and an empty data field.
 
 
 Example for body content
@@ -51,9 +51,8 @@ Example for body content
 .. code-block:: JSON
 
   { 
-	“ownerStockId”:[“owner_stock_01”,
-	”owner_stock_02”],
-	“connectorStockId”:[null,null]
+	"ownerStockId":["owner_stock_01", "owner_stock_02"],
+	"connectorStockId":[null,null]
   }
 
 

@@ -13,7 +13,7 @@ Data definition
 
 The data that is provided by the platform is comprised of the following fields:
 
-.. list-table:: getCurrentInventory return data definition
+.. list-table:: 
    :class: tight-table
    :widths: 20 10 70
    :header-rows: 1
@@ -103,22 +103,25 @@ Web service access
 
 The getCurrentInventory web service provides the possibility to request the company's own inventory data via an automated interface. 
 
-:Request method: GET
-:URL: https://services.surplusdataconnection.com/getCurrentInventory
-:Testing URL: https://services.test.surplusdataconnection.com/getCurrentInventory
-:Accepted content type: application/octet-stream
-:Parameters encoded in URL:
-  - **user:** The customer’s login individual name for the platform account, e.g., zzz001
-  - **key:** The customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
-  - **filter:** Optional. Customers may filter the returned inventory by part number (field: pn) and/or condition (field: condition).
-  - **Return data:** A JSON string containing the response status, response message and the stock data as defined above
+- **Request method:** GET
+- **URL:** https://services.surplusdataconnection.com/getCurrentInventory
+- **Testing URL:** https://services.test.surplusdataconnection.com/getCurrentInventory
+- **Accepted content type:** application/octet-stream
+- **Parameters encoded in URL:** user, key, filter
+    
+    - *user:* The customer’s login individual name for the platform account, e.g., zzz001
+    - *key:* The customer’s individual web service security key for the platform account. This key can be changed in the parameters section under Settings on the platform.
+    - *filter:* Optional. Customers may filter the returned inventory by part number (field: pn) and/or condition (field: condition).
+
+
+- **Return data:** A JSON string containing the response status, response message and the stock data as defined above
 
 Example
 ^^^^^^^
 
 Usage
 
-.. code-block:: none
+.. code-block:: 
 
   http://services.test.surplusdataconnection.com/getCurrentInventory?user=zzz001&key=keyzzz001
 
