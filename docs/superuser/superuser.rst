@@ -1,6 +1,6 @@
-******************
-Consignment Module
-******************
+**********************
+Company administration
+**********************
 
 .. |comment| image:: ../icons/icon_comment.png
 .. |check| image:: ../icons/icon_check.png
@@ -15,6 +15,6 @@ Consignment Module
 .. |request| image:: ../icons/icon_request.png
 
 
-.. include:: consignment_preliminaries.rst
-.. include:: consignment_consignor.rst
-.. include:: consignment_consignee.rst
+.. include:: superuser_user.rst
+.. include:: superuser_settings.rst
+.. include:: superuser_trading_channels.rst
