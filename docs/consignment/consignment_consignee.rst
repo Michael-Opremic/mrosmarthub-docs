@@ -68,6 +68,8 @@ After material has been uploaded by the consignor, it will be displayed in the c
 
 After submitting, the proposed prices are shown to the consignor for approval immediately. Price proposals can be changed until the consignor has approved the proposed prices. After agreeing on a set of prices for a material, the consignor approves a material for sale. Approved material is marked as FOR SALE. The proposed prices and sales potential are fixed and cannot be changed anymore.
 
+If a company has also access to |mrosh| Connector, consignment material that is approved for sale is automatically listed on Connector. The sales price is set based on the agreed expected price for the material, adjusted with a factor that can be set up in company administration. The visibility is also set to a pre-defined value that can be managed in company administration. For more details about the settings, see :ref:`ref_superuser_settings_consignments`.
+
 .. figure:: img/consignee_02_worklist.png
    :figwidth: image
    :alt: Worklist screen

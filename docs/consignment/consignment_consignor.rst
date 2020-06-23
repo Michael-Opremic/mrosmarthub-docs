@@ -226,7 +226,7 @@ Approve proposed sales prices: By clicking on |check| the consignor approves the
 
 Upload PDF documentation
 ========================
-Clicking on the icon |upload| opens the dialog to add a PDF file to the selected material as documentation.
+Clicking on the icon |upload| opens the dialog to add one or more PDF/TIFF files to the selected material as documentation. All files will be converted to a single PDF file during the upload process. The content of the files will not be changed.
 
 Chat functionality
 ==================

@@ -1,14 +1,17 @@
-.. |comment| image:: ../icons/icon_comment.png
-.. |check| image:: ../icons/icon_check.png
-.. |info| image:: ../icons/icon_info.png
-.. |upload| image:: ../icons/icon_upload.png
-.. |edit| image:: ../icons/icon_edit.png
-.. |close| image:: ../icons/icon_close.png
-.. |trash| image:: ../icons/icon_trash.png
-.. |dollar| image:: ../icons/icon_dollar.png
 .. |attachement| image:: ../icons/icon_attachement.png
-.. |shoppingcart| image:: ../icons/icon_shoppingcart.png
+.. |check| image:: ../icons/icon_check.png
+.. |close| image:: ../icons/icon_close.png
+.. |comment| image:: ../icons/icon_comment.png
+.. |dollar| image:: ../icons/icon_dollar.png
+.. |edit| image:: ../icons/icon_edit.png
+.. |info| image:: ../icons/icon_info.png
 .. |request| image:: ../icons/icon_request.png
+.. |shoppingcart| image:: ../icons/icon_shoppingcart.png
+.. |trash| image:: ../icons/icon_trash.png
+.. |upload| image:: ../icons/icon_upload.png
+.. |visibility| image:: ../icons/icon_visibility.png
+
+.. |mrosh| replace:: IATA MRO SmartHub
 
 ************
 MRO SmartHub
@@ -19,20 +22,7 @@ MRO SmartHub
 *********
 Connector
 *********
-
-Connector
-        Buying parts
-            Shopping cart
-            Negotiation bundles
-            Transaction process
-        Listing parts
-            Add new listings
-            Administrate existing listings
-        Requests
-        Consignment
-            Consignor
-            Consignee
-    Statistics
+.. include:: smarthub_connector.rst
 
 *********
 Evaluator

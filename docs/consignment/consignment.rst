@@ -14,6 +14,7 @@ Consignment Module
 .. |shoppingcart| image:: ../icons/icon_shoppingcart.png
 .. |request| image:: ../icons/icon_request.png
 
+.. |mrosh| replace:: IATA MRO SmartHub
 
 .. include:: consignment_preliminaries.rst
 .. include:: consignment_consignor.rst
